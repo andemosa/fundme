@@ -3,6 +3,10 @@ import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import { Spinner } from "flowbite-react";
 import { useNotification } from "web3uikit";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 import TransactionLoader from "@/components/TransactionLoader";
 import Footer from "@/components/footer";
@@ -12,19 +16,23 @@ import Navbar from "@/components/navbar";
 import LoaderComp from "@/components/Loader";
 import CreateMilestoneModal from "@/components/CreateMilestoneModal";
 import DonateModal from "@/components/DonateModal";
+import UploadModal from "@/components/UploadModal";
+import ValidateModal from "@/components/ValidateModal";
 import MilestoneCard from "@/components/Card";
 
 import { useWalletContext } from "@/context/walletContext";
 import { abi, contractAddress } from "@/utils/contract";
 import {
   calculateBarPercentage,
-  daysLeft,
   formatError,
   parseCampaign,
   parseMilestone,
 } from "@/utils/helpers";
-import UploadModal from "@/components/UploadModal";
-import { changeFileName, storeFiles } from "@/utils/web3file";
+import { changeFileName, createImageUrl, storeFiles } from "@/utils/web3file";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(advancedFormat);
+dayjs.extend(relativeTime);
 
 const CampaignPage = () => {
   const router = useRouter();
@@ -32,14 +40,16 @@ const CampaignPage = () => {
 
   const [campaign, setCampaign] = useState({});
   const [milestones, setMilestones] = useState([]);
-  const [openModal, setOpenModal] = useState(false);
+  const [createModal, setCreateModal] = useState(false);
   const [donateModal, setDonateModal] = useState(false);
   const [uploadModal, setUploadModal] = useState(false);
+  const [validateModal, setValidateModal] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState("");
+  const [selectedImage, setSelectedImage] = useState("");
   const [hasPledged, setHasPledged] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
   const [requestError, setRequestError] = useState("");
   const [requestLoading, setRequestLoading] = useState(false);
   const dispatch = useNotification();
@@ -48,7 +58,8 @@ const CampaignPage = () => {
   useEffect(() => {
     const fetchCampaign = async () => {
       setLoading(true);
-      setError(false);
+      setError("");
+      setRequestError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const res = await contract.campaigns(campaignId);
@@ -65,21 +76,22 @@ const CampaignPage = () => {
         console.log(parsedCampaign);
         console.log(parsedMilestones);
       } catch (error) {
-        console.log(error);
         setError(error.message);
       }
       setLoading(false);
     };
     fetchCampaign();
-  }, [router.query, signer, requestLoading]);
+  }, [signer, requestLoading, campaignId]);
 
   useEffect(() => {
     const checkPledgeStatus = async () => {
       setLoading(true);
-      setError(false);
+      setError("");
+      setRequestError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const res = await contract.campaignDonorStatus(campaignId, address);
+        console.log(res);
         setHasPledged(res);
       } catch (error) {
         setError(error);
@@ -106,7 +118,7 @@ const CampaignPage = () => {
   );
 
   const onClose = () => {
-    setOpenModal(false);
+    setCreateModal(false);
   };
 
   const onCloseDonateModal = () => {
@@ -119,6 +131,17 @@ const CampaignPage = () => {
 
   const onCloseUploadModal = () => {
     setUploadModal(false);
+    setSelectedMilestone(null);
+  };
+
+  const openValidateModal = () => {
+    setValidateModal(true);
+  };
+
+  const onCloseValidateModal = () => {
+    setValidateModal(false);
+    setSelectedMilestone(null);
+    setSelectedImage(null);
   };
 
   const handleUpload = async (image) => {
@@ -126,23 +149,30 @@ const CampaignPage = () => {
     setRequestError("");
     try {
       const newFile = changeFileName(image, selectedMilestone);
-      // const storeRes = await storeFiles([newFile]);
+      const storeRes = await storeFiles([newFile]);
 
-      // const imageUrl = createImageUrl(
-      //   storeRes,
-      //   formData.image.name.split(".")[0],
-      //   formData.image.name.split(".")[1]
-      // );
+      const imageUrl = createImageUrl(
+        storeRes,
+        newFile.name.split(".")[0],
+        newFile.name.split(".")[1]
+      );
+      const contract = new ethers.Contract(contractAddress, abi, signer);
 
-      handleNewNotification("info", newFile.name);
-      setOpenModal(false);
+      const res = await contract.updateMilestoneProof(
+        selectedMilestone,
+        imageUrl
+      );
+      await provider.waitForTransaction(res.hash, 1, 150000);
+      handleNewNotification("info", "Milestone proof uploaded successfully");
+      setUploadModal(false);
     } catch (error) {
+      console.log(error)
       handleNewNotification("error", "An error occurred");
     }
     setRequestLoading(false);
   };
 
-  const handleSubmit = async (description) => {
+  const handleCreate = async (description) => {
     setRequestLoading(true);
     setRequestError("");
     try {
@@ -154,7 +184,7 @@ const CampaignPage = () => {
       );
       await provider.waitForTransaction(res.hash, 1, 150000);
       handleNewNotification("info", "Successfully created milestone");
-      setOpenModal(false);
+      setCreateModal(false);
     } catch (error) {
       handleNewNotification("error", "An error occurred");
     }
@@ -228,6 +258,25 @@ const CampaignPage = () => {
     setRequestLoading(false);
   };
 
+  const handleValidate = async (e) => {
+    e.preventDefault();
+    setRequestLoading(true);
+    setRequestError("");
+    const contract = new ethers.Contract(contractAddress, abi, signer);
+    try {
+      const res = await contract.validateMilestone(selectedMilestone);
+      await provider.waitForTransaction(res.hash, 1, 150000);
+      handleNewNotification("info", "Validate successful");
+      setValidateModal(false)
+    } catch (error) {
+      handleNewNotification("error", formatError(error.message));
+    }
+    setRequestLoading(false);
+  };
+
+  const validOwner =
+    campaign.owner !== "0x0000000000000000000000000000000000000000";
+
   return (
     <>
       <div className="flex flex-col justify-between min-h-screen">
@@ -247,13 +296,19 @@ const CampaignPage = () => {
         {!signer ? (
           <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
             <h2 className="font-bold text-2xl">
-              Please connect your wallet to proceed
+              Please connect your wallet to proceed.
             </h2>
           </div>
         ) : error ? (
           <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
             <h2 className="font-bold text-2xl">
-              An error occurred. Please try again
+              An error occurred. Please try again.
+            </h2>
+          </div>
+        ) : !validOwner ? (
+          <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
+            <h2 className="font-bold text-2xl">
+              Campaign not found. Please check the campaign ID properly.
             </h2>
           </div>
         ) : (
@@ -280,7 +335,7 @@ const CampaignPage = () => {
                   </div>
                   <div className="flex gap-2 items-center">
                     <CalendarIcon />
-                    <p>{daysLeft(campaign.deadline * 1000)}</p>
+                    <p>{dayjs(campaign.deadline * 1000).fromNow()}</p>
                   </div>
                 </div>
 
@@ -299,12 +354,15 @@ const CampaignPage = () => {
                     <MilestoneCard
                       key={item.milestoneIndex}
                       {...item}
-                      setRequestLoading={setRequestLoading}
                       requestLoading={requestLoading}
                       campaignId={campaignId}
                       campaignOwner={campaign.owner}
-                      setSelectedMilestone={setSelectedMilestone}
+                      hasPledged={hasPledged}
                       openUploadModal={openUploadModal}
+                      openValidateModal={openValidateModal}
+                      setSelectedImage={setSelectedImage}
+                      setRequestLoading={setRequestLoading}
+                      setSelectedMilestone={setSelectedMilestone}
                     />
                   ))}
                 </div>
@@ -314,7 +372,7 @@ const CampaignPage = () => {
                     <div className="flex items-center justify-center my-2">
                       <button
                         className="bg-[#3C4A79] px-4 py-2 rounded-lg text-white text-xs md:text-base text-center"
-                        onClick={() => setOpenModal(true)}
+                        onClick={() => setCreateModal(true)}
                       >
                         Create Milestone
                       </button>
@@ -422,10 +480,10 @@ const CampaignPage = () => {
         {/* Footer Section */}
         <Footer />
       </div>
-      {openModal && (
+      {createModal && (
         <CreateMilestoneModal
-          isModalOpen={openModal}
-          handleSubmit={handleSubmit}
+          isModalOpen={createModal}
+          handleSubmit={handleCreate}
           milestoneCount={campaign.milestoneCount}
           onClose={onClose}
           requestLoading={requestLoading}
@@ -447,6 +505,16 @@ const CampaignPage = () => {
           handleSubmit={handleUpload}
           onClose={onCloseUploadModal}
           requestLoading={requestLoading}
+        />
+      )}
+
+      {validateModal && (
+        <ValidateModal
+          isModalOpen={validateModal}
+          selectedImage={selectedImage}
+          requestLoading={requestLoading}
+          handleSubmit={handleValidate}
+          onClose={onCloseValidateModal}
         />
       )}
     </>

@@ -138,14 +138,18 @@ const Home = () => {
         {!signer ? (
           <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
             <h2 className="font-bold text-2xl">
-              Please connect your wallet to see campaigns
+              Please connect your wallet to see campaigns.
             </h2>
           </div>
         ) : error ? (
           <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
             <h2 className="font-bold text-2xl">
-              An error occurred. Please try again
+              An error occurred. Please try again.
             </h2>
+          </div>
+        ) : campaigns.length === 0 ? (
+          <div className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8 flex flex-col items-center justify-center gap-3">
+            <h2 className="font-bold text-2xl">No campaigns currently.</h2>
           </div>
         ) : (
           <>

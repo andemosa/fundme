@@ -14,12 +14,12 @@ const Profile = () => {
   const { signer, address } = useWalletContext();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       setLoading(true);
-      setError(false);
+      setError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const activeIds = await contract.getActiveCampaignIds();

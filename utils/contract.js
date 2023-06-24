@@ -200,6 +200,25 @@ export const abi = [
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "bytes32",
+        name: "milestoneHash",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "string",
+        name: "milestoneProofCID",
+        type: "string",
+      },
+    ],
+    name: "MilestoneProofUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: false,
         internalType: "bytes32",
         name: "milestoneHash",
@@ -367,8 +386,27 @@ export const abi = [
         type: "bytes32",
       },
       {
-        internalType: "bytes32",
+        internalType: "string",
         name: "milestoneProofCID",
+        type: "string",
+      },
+    ],
+    name: "updateMilestoneProof",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "milestoneHash",
         type: "bytes32",
       },
     ],
@@ -741,9 +779,9 @@ export const abi = [
         type: "uint256",
       },
       {
-        internalType: "bytes32",
+        internalType: "string",
         name: "milestoneProofCID",
-        type: "bytes32",
+        type: "string",
       },
       {
         internalType: "bool",
@@ -854,4 +892,4 @@ export const abi = [
   },
 ];
 
-export const contractAddress = "0x784b1aF0CdeA5e5e85eEb24C7Ad508B26118AebB";
+export const contractAddress = "0x70cA59Cd01CeE5d2C4a12704c47A9e00C072e6BF";

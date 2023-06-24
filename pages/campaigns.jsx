@@ -14,12 +14,12 @@ const CampaignPage = () => {
   const { signer, address } = useWalletContext();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCampaigns = async () => {
       setLoading(true);
-      setError(false);
+      setError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const activeIds = await contract.getActiveCampaignIds();
@@ -49,7 +49,7 @@ const CampaignPage = () => {
         <div className="absolute inset-0 m-auto capitalize text-white text-center max-w-[600px] flex items-end justify-center p-4">
           <div>
             <h1 className="text-3xl lg:text-5xl lg:leading-tight font-bold mt-2 mb-3 font-playfair">
-              Our campaigns
+              Active Campaigns
             </h1>
           </div>
         </div>

@@ -11,7 +11,7 @@ import TransactionLoader from "@/components/TransactionLoader";
 
 import { useWalletContext } from "@/context/walletContext";
 
-import { createImageUrl, storeFiles } from "@/utils/web3file";
+import { changeFileName, createImageUrl, storeFiles } from "@/utils/web3file";
 import { abi, contractAddress } from "@/utils/contract";
 import { formatError } from "@/utils/helpers";
 
@@ -35,7 +35,8 @@ const Create = () => {
   useEffect(() => {
     const checkVerificationStatus = async () => {
       setLoading(true);
-      setError(false);
+      setError("");
+      setRequestError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const res = await contract.verifiedAddress(address);
@@ -78,19 +79,20 @@ const Create = () => {
     e.preventDefault();
     setRequestLoading(true);
 
-    const today = new Date();
-    today.setHours(today.getHours() + 1);
-    const timeline = new Date(today);
-    // const timeline = new Date(formData.endDate);
+    const timeline = new Date(formData.endDate);
     const timelineStamp = Math.floor(timeline.getTime() / 1000);
 
     try {
-      const storeRes = await storeFiles([formData.image]);
+      const newFile = changeFileName(
+        formData.image,
+        `${address}-${formData.title}`
+      );
+      const storeRes = await storeFiles([newFile]);
 
       const imageUrl = createImageUrl(
         storeRes,
-        formData.image.name.split(".")[0],
-        formData.image.name.split(".")[1]
+        newFile.name.split(".")[0],
+        newFile.name.split(".")[1]
       );
 
       const contract = new ethers.Contract(contractAddress, abi, signer);
@@ -223,7 +225,7 @@ const Create = () => {
                   <Label htmlFor="endDate" value="End Date" />
                 </div>
                 <TextInput
-                  type="date"
+                  type="datetime-local"
                   name="endDate"
                   id="endDate"
                   placeholder=""
