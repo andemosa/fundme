@@ -7,7 +7,7 @@ const VerifyPage = ({ props }) => {
       <h1>Example Fractal ID client implementation</h1>
       <a
         className="fractal-id-btn"
-        href="https://next.fractal.id/authorize?client_id=xzpETseMgXdmDa9wy51dpLP82I7grTZDf8LlAe922hs&redirect_uri =https%3A%2F%2Ffundme-iota.vercel.app%2F%2Fverify&response_type=code&scope=contact%3Aread%20verification.basic%3Aread%20verification.basic.details%3Aread%20verification.liveness%3Aread%20verification.liveness.details%3Aread"
+        href="https://next.fractal.id/authorize?client_id=xzpETseMgXdmDa9wy51dpLP82I7grTZDf8LlAe922hs&redirect_uri =https%3A%2F%2Ffundme-iota.vercel.app%2Fverify&response_type=code&scope=contact%3Aread%20verification.basic%3Aread%20verification.basic.details%3Aread%20verification.liveness%3Aread%20verification.liveness.details%3Aread"
       >
         Log in with <span style={{ color: "#ee7326" }}>Fractal</span>
       </a>
@@ -27,16 +27,14 @@ const prefs = {
 
   scope:
     "contact:read verification.basic:read verification.basic.details:read verification.liveness:read verification.liveness.details:read",
-  redirect_url:
-    "https://da21-2c0f-f5c0-45b-749c-cd3d-c38d-5b9f-7299.ngrok-free.app/verify",
-  redirect_uri:
-    "https%3A%2F%2Ffundme-iota.vercel.app%2F%2Fverify",
+  redirect_url: "https://fundme-iota.vercel.app/verify",
+  redirect_uri: "https%3A%2F%2Ffundme-iota.vercel.app%2Fverify",
 };
 
 const getAccessToken = (code) =>
   axios
     .post(
-      `https://auth.next.fractal.id/oauth/token?client_id=xzpETseMgXdmDa9wy51dpLP82I7grTZDf8LlAe922hs&client_secret=ex3KunauspnL-MJlMzeVxS508qUw9fgMWj-UcsyCEV4&code=${code}&grant_type=authorization_code&redirect_uri=https%3A%2F%2Ffundme-iota.vercel.app%2F%2Fverify`
+      `https://auth.next.fractal.id/oauth/token?client_id=xzpETseMgXdmDa9wy51dpLP82I7grTZDf8LlAe922hs&client_secret=ex3KunauspnL-MJlMzeVxS508qUw9fgMWj-UcsyCEV4&code=${code}&grant_type=authorization_code&redirect_uri=https%3A%2F%2Ffundme-iota.vercel.app%2Fverify`
     )
     .then((res) => res.data);
 
