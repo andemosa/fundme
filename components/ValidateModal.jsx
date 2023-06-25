@@ -23,7 +23,7 @@ const ValidateModal = ({
         </h3>
         <div className="flex-1 w-full">
           <img
-            class="h-auto max-w-lg rounded-lg"
+            className="h-auto max-w-lg rounded-lg"
             src={selectedImage}
             alt="image description"
           />

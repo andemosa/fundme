@@ -14,6 +14,7 @@ import { useWalletContext } from "@/context/walletContext";
 import { changeFileName, createImageUrl, storeFiles } from "@/utils/web3file";
 import { abi, contractAddress } from "@/utils/contract";
 import { formatError } from "@/utils/helpers";
+import Link from "next/link";
 
 const Create = () => {
   const { signer, address, provider } = useWalletContext();
@@ -259,11 +260,12 @@ const Create = () => {
                 className="bg-[#3C4A79] px-4 py-2 rounded-lg text-white mr-2 text-xs md:text-base md:mr-0"
                 onClick={handleVerify}
               >
-                {requestLoading ? (
+                {/* {requestLoading ? (
                   <Spinner aria-label="Submitting form" size="sm" />
                 ) : (
                   "Proceed to verify"
-                )}
+                )} */}
+                <Link href={"/verify"}>Proceed to verify</Link>
               </button>
               <p className="break-all text-red-500 capitalize text-center font-bold">
                 {requestError}

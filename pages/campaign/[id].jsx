@@ -90,9 +90,9 @@ const CampaignPage = () => {
       setRequestError("");
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
-        const res = await contract.campaignDonorStatus(campaignId, address);
-        console.log(res);
-        setHasPledged(res);
+        const res = await contract.getDonorAddressesInCampaign(campaignId);
+        const hasDonated = res.includes(address);
+        setHasPledged(hasDonated);
       } catch (error) {
         setError(error);
       }
@@ -166,7 +166,7 @@ const CampaignPage = () => {
       handleNewNotification("info", "Milestone proof uploaded successfully");
       setUploadModal(false);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       handleNewNotification("error", "An error occurred");
     }
     setRequestLoading(false);
@@ -267,7 +267,7 @@ const CampaignPage = () => {
       const res = await contract.validateMilestone(selectedMilestone);
       await provider.waitForTransaction(res.hash, 1, 150000);
       handleNewNotification("info", "Validate successful");
-      setValidateModal(false)
+      setValidateModal(false);
     } catch (error) {
       handleNewNotification("error", formatError(error.message));
     }
@@ -276,6 +276,8 @@ const CampaignPage = () => {
 
   const validOwner =
     campaign.owner !== "0x0000000000000000000000000000000000000000";
+
+  const lastValidated = milestones.find((item) => item.validated);
 
   return (
     <>
@@ -311,7 +313,7 @@ const CampaignPage = () => {
               Campaign not found. Please check the campaign ID properly.
             </h2>
           </div>
-        ) : (
+        ) : campaign ? (
           <main className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8">
             <h1 className="text-xl md:text-2xl lg:text-3xl font-bold font-playfair">
               {campaign.title}
@@ -358,6 +360,7 @@ const CampaignPage = () => {
                       campaignId={campaignId}
                       campaignOwner={campaign.owner}
                       hasPledged={hasPledged}
+                      lastValidated={lastValidated}
                       openUploadModal={openUploadModal}
                       openValidateModal={openValidateModal}
                       setSelectedImage={setSelectedImage}
@@ -389,13 +392,16 @@ const CampaignPage = () => {
                     </div>
                     <div className="rounded-sm overflow-hidden bg-[#B9BFD3] mt-1 mb-2">
                       <div
-                        className={`${
-                          percentageRaised > 100
-                            ? `w-[${100}%]`
-                            : percentageRaised > 0
-                            ? `w-[${percentageRaised}%]`
-                            : "w-[0]"
-                        } h-1 bg-[#3C4A79]`}
+                        className={`h-1 bg-[#3C4A79]`}
+                        style={{
+                          width: `${
+                            percentageRaised > 100
+                              ? `${100}%`
+                              : percentageRaised > 0
+                              ? `${percentageRaised}%`
+                              : "0"
+                          }`,
+                        }}
                       ></div>
                     </div>
                     <div className="flex justify-between">
@@ -419,23 +425,10 @@ const CampaignPage = () => {
                           </button>
                         ) : (
                           <div className="flex gap-3 justify-between w-full">
-                            <button
-                              className="text-[#3C4A79] px-3 py-2 rounded-lg bg-white text-sm border border-[#3C4A79]"
-                              onClick={() => setDonateModal(true)}
-                            >
-                              {requestLoading ? (
-                                <Spinner
-                                  aria-label="Submitting form"
-                                  size="sm"
-                                />
-                              ) : (
-                                "Donate Now"
-                              )}
-                            </button>
-                            {hasPledged && (
+                            {campaign.totalFundDonated < campaign.goal && (
                               <button
                                 className="text-[#3C4A79] px-3 py-2 rounded-lg bg-white text-sm border border-[#3C4A79]"
-                                onClick={handleUnpledge}
+                                onClick={() => setDonateModal(true)}
                               >
                                 {requestLoading ? (
                                   <Spinner
@@ -443,10 +436,28 @@ const CampaignPage = () => {
                                     size="sm"
                                   />
                                 ) : (
-                                  "Unpledge"
+                                  "Donate"
                                 )}
                               </button>
                             )}
+                            {hasPledged &&
+                              !(
+                                campaign.status === 0 || campaign.status === 4
+                              ) && (
+                                <button
+                                  className="text-[#3C4A79] px-3 py-2 rounded-lg bg-white text-sm border border-[#3C4A79]"
+                                  onClick={handleUnpledge}
+                                >
+                                  {requestLoading ? (
+                                    <Spinner
+                                      aria-label="Submitting form"
+                                      size="sm"
+                                    />
+                                  ) : (
+                                    "Unpledge"
+                                  )}
+                                </button>
+                              )}
                           </div>
                         )}
                       </div>
@@ -475,7 +486,7 @@ const CampaignPage = () => {
               </section>
             </article>
           </main>
-        )}
+        ) : null}
 
         {/* Footer Section */}
         <Footer />

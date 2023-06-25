@@ -116,13 +116,16 @@ const CampaignPage = () => {
                           </div>
                           <div className="rounded-sm overflow-hidden bg-[#B9BFD3] mb-1">
                             <div
-                              className={`${
-                                percentageRaised > 100
-                                  ? `w-[${100}%]`
-                                  : percentageRaised > 0
-                                  ? `w-[${percentageRaised}%]`
-                                  : "w-[0]"
-                              } h-1 bg-[#3C4A79]`}
+                              className={`h-1 bg-[#3C4A79]`}
+                              style={{
+                                width: `${
+                                  percentageRaised > 100
+                                    ? `${100}%`
+                                    : percentageRaised > 0
+                                    ? `${percentageRaised}%`
+                                    : "0"
+                                }`,
+                              }}
                             ></div>
                           </div>
                           <div className="flex justify-between">
