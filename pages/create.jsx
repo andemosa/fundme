@@ -115,20 +115,20 @@ const Create = () => {
   };
 
   const handleVerify = async () => {
-    setRequestLoading(true);
-    const contract = new ethers.Contract(contractAddress, abi, signer);
-    try {
-      const res = await contract.setKycVerified(
-        address?.slice(address?.length - 10)
-      );
-      await provider.waitForTransaction(res.hash, 1, 150000);
-      handleNewNotification("info", "You are now verified");
-      setIsVerified(true);
-    } catch (error) {
-      handleNewNotification("error", "An error occurred");
-      setRequestError(formatError(error.message));
-    }
-    setRequestLoading(false);
+    // setRequestLoading(true);
+    // const contract = new ethers.Contract(contractAddress, abi, signer);
+    // try {
+    //   const res = await contract.setKycVerified(
+    //     address?.slice(address?.length - 10)
+    //   );
+    //   await provider.waitForTransaction(res.hash, 1, 150000);
+    //   handleNewNotification("info", "You are now verified");
+    //   setIsVerified(true);
+    // } catch (error) {
+    //   handleNewNotification("error", "An error occurred");
+    //   setRequestError(formatError(error.message));
+    // }
+    // setRequestLoading(false);
   };
 
   return (
