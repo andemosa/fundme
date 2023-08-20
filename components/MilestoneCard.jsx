@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "flowbite-react";
 import { Spinner } from "flowbite-react";
-// import { useNotification } from "web3uikit";
+import { useNotification } from "web3uikit";
 import { ethers } from "ethers";
 
 import { useMetaMask } from "@/hooks/useMetaMask";
@@ -19,6 +19,7 @@ const MilestoneCard = ({
   requestLoading,
   setRequestLoading,
   campaignId,
+  listedAllMilestones,
   campaignOwner,
   hasPledged,
   lastValidated,
@@ -28,7 +29,7 @@ const MilestoneCard = ({
   setSelectedImage,
 }) => {
   const { signer, provider, wallet } = useMetaMask();
-  // const dispatch = useNotification();
+  const dispatch = useNotification();
   const [hasValidated, setHasValidated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -52,13 +53,13 @@ const MilestoneCard = ({
   }, [milestoneHash, signer, wallet.accounts]);
 
   const handleNewNotification = (type, message) => {
-    // dispatch({
-    //   type,
-    //   message,
-    //   title: "Transaction Notification",
-    //   position: "topR",
-    //   icon: "bell",
-    // });
+    dispatch({
+      type,
+      message,
+      title: "Transaction Notification",
+      position: "topR",
+      icon: "bell",
+    });
   };
 
   const handleWithdraw = async (e) => {
@@ -91,14 +92,15 @@ const MilestoneCard = ({
     campaignOwner?.toLowerCase() === wallet.accounts[0]?.toLowerCase();
 
   const canValidate =
-    (milestoneIndex === 1 && !isOwner) ||
-    (!isOwner && hasPledged && validCID && !loading && !hasValidated);
+    !isOwner && hasPledged && validCID && !loading && !hasValidated;
 
   const lastValidatedIndex = lastValidated ? lastValidated.milestoneIndex : 0;
 
-  const canUpload = milestoneIndex === lastValidatedIndex + 1;
+  const canUpload =
+    listedAllMilestones && milestoneIndex === lastValidatedIndex + 1;
 
-  const canWithdraw = allowWithdrawal || milestoneIndex === 1;
+  const canWithdraw =
+    listedAllMilestones && (allowWithdrawal || milestoneIndex === 1);
 
   return (
     <Card>
