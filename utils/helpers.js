@@ -44,10 +44,10 @@ export const parseCampaign = (campaign) => ({
 });
 
 export const parseMilestone = (milestone, arr, index) => {
-  let canUploadProof = false;
-  if (index === 0) canUploadProof = true;
+  let allowWithdrawal = false;
+  if (index === 0) allowWithdrawal = true;
 
-  if (index !== 0) canUploadProof = arr[index - 1].milestoneValidated;
+  if (index !== 0) allowWithdrawal = arr[index - 1].milestoneValidated;
 
   return {
     milestoneDetails: milestone.milestoneDetails,
@@ -58,12 +58,20 @@ export const parseMilestone = (milestone, arr, index) => {
     validated: milestone.milestoneValidated,
     votes: milestone.milestoneVotes.toNumber(),
     timestamp: milestone.timestamp.toNumber(),
-    canUploadProof,
+    allowWithdrawal,
   };
 };
 
-export const formatError = (message) => {
-  if (message.includes("user rejected transaction"))
-    return "Error: user rejected transaction";
-  return message.split(`reason="`)[1]?.split(`", `)[0];
+export const formatError = (err) => {
+  if (err instanceof Error) {
+    if (err.reason) return err.reason;
+    if (err.message) return err.message;
+    return `An unknown error occurred`;
+  } else if (typeof err === "string") {
+    if (err.includes("user rejected transaction"))
+      return "Error: user rejected transaction";
+    return err;
+  } else {
+    return `An unknown error occurred: ${JSON.stringify(err)}`;
+  }
 };

@@ -4,21 +4,21 @@ import { Accordion } from "flowbite-react";
 import { ethers } from "ethers";
 
 import Footer from "@/components/footer";
-import DoveIcon from "@/components/icons/doveicon";
-import EarthIcon from "@/components/icons/earthicon";
-import HandshakeIcon from "@/components/icons/handshakeicon";
-import MissionIcon from "@/components/icons/missionicon";
-import VisionIcon from "@/components/icons/visionicon";
-import VolunteerIcon from "@/components/icons/volunteericon";
+// import DoveIcon from "@/components/icons/doveicon";
+// import EarthIcon from "@/components/icons/earthicon";
+// import HandshakeIcon from "@/components/icons/handshakeicon";
+// import MissionIcon from "@/components/icons/missionicon";
+// import VisionIcon from "@/components/icons/visionicon";
+// import VolunteerIcon from "@/components/icons/volunteericon";
 import Navbar from "@/components/navbar";
 import TypingText from "@/components/TypingText";
 
-import { useWalletContext } from "@/context/walletContext";
+import { useMetaMask } from "@/hooks/useMetaMask";
 import { calculateBarPercentage, parseCampaign } from "@/utils/helpers";
 import { abi, contractAddress } from "@/utils/contract";
 
 const Home = () => {
-  const { signer, address } = useWalletContext();
+  const { signer, wallet } = useMetaMask();
   const [campaigns, setCampaigns] = useState([]);
   const [, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -93,7 +93,7 @@ const Home = () => {
       </section>
 
       {/* Make a Difference Section */}
-      <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto flex gap-4 my-8 lg:mb-12">
+      {/* <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto flex gap-4 my-8 lg:mb-12">
         <div className="flex-1">
           <div className="w-11/12">
             <TypingText title="Welcome to Fund me" textStyles="font-semibold" />
@@ -126,7 +126,7 @@ const Home = () => {
         <div className="hidden sm:flex flex-1 relative max-h-[450px] rounded-2xl border-2 rounded-br-xl border-solid border-[#8C96B6] bg-[#8C96B6] p-2 md:p-4">
           <img src="/grass.webp" alt="" className="w-full h-full rounded-2xl" />
         </div>
-      </section>
+      </section> */}
 
       {/* Popular Campaigns Section */}
       <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto">
@@ -153,7 +153,7 @@ const Home = () => {
           </div>
         ) : (
           <>
-            <div className="flex gap-4 mt-6 mb-4 py-4 overflow-x-scroll lg:overflow-hidden">
+            <div className="flex gap-4 mt-6 mb-4 py-4 px-2 overflow-x-scroll 2xl:overflow-hidden">
               {campaigns.map((c) => {
                 const percentageRaised = calculateBarPercentage(
                   c.goal,
@@ -162,7 +162,7 @@ const Home = () => {
 
                 return (
                   <Link href={`/campaign/${c.id}`} key={c.id}>
-                    <div className="shadow-[0px_10px_25px_rgba(37,42,52,0.08)] rounded-xl bg-white min-w-[220px]">
+                    <div className="shadow-[0px_10px_25px_rgba(37,42,52,0.08)] rounded-xl bg-white min-w-[250px] max-w-[320px]">
                       <div>
                         <img
                           src={c.image}
@@ -198,7 +198,9 @@ const Home = () => {
                           </div>
                         </div>
                         <button className="bg-[#3C4A79] px-3 py-2 rounded-lg text-white text-sm">
-                          {c.owner === address ? "View Campaign" : "Donate Now"}
+                          {c.owner === wallet.accounts[0]
+                            ? "View Campaign"
+                            : "Donate Now"}
                         </button>
                       </div>
                     </div>
@@ -215,7 +217,7 @@ const Home = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8">
+      {/* <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto my-8">
         <h3 className="text-2xl lg:text-3xl font-bold font-playfair">
           We Believe that We can Save <br />
           More Lifes with you
@@ -246,7 +248,7 @@ const Home = () => {
             <p className="font-semibold">People Raised</p>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* FAQ Section */}
       <section className="w-11/12 xl:w-4/5 max-w-7xl mx-auto">
