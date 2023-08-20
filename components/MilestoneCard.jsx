@@ -86,14 +86,13 @@ const MilestoneCard = ({
     setSelectedImage(milestoneCID);
   };
 
-  const validCID = milestoneCID !== "";
+  const validCID = !!milestoneCID;
+  const isOwner =
+    campaignOwner?.toLowerCase() === wallet.accounts[0]?.toLowerCase();
 
   const canValidate =
-    campaignOwner !== wallet.accounts[0] &&
-    hasPledged &&
-    validCID &&
-    !loading &&
-    !hasValidated;
+    (milestoneIndex === 1 && !isOwner) ||
+    (!isOwner && hasPledged && validCID && !loading && !hasValidated);
 
   const lastValidatedIndex = lastValidated ? lastValidated.milestoneIndex : 0;
 
@@ -129,7 +128,7 @@ const MilestoneCard = ({
             )}
           </button>
         )}
-        {campaignOwner === wallet.accounts[0] && (
+        {isOwner && (
           <>
             {canWithdraw && (
               <button

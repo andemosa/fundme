@@ -73,8 +73,6 @@ const CampaignPage = () => {
         setMilestones(parsedMilestones);
         const parsedCampaign = parseCampaign(res);
         setCampaign(parsedCampaign);
-        console.log(parsedCampaign);
-        console.log(parsedMilestones);
       } catch (error) {
         setError(error.message);
       }
@@ -91,7 +89,10 @@ const CampaignPage = () => {
       const contract = new ethers.Contract(contractAddress, abi, signer);
       try {
         const res = await contract.getDonorAddressesInCampaign(campaignId);
-        const hasDonated = res.includes(wallet.accounts[0]);
+        const lowerCased = res.map((item) => item?.toLowerCase());
+        const hasDonated = lowerCased.includes(
+          wallet.accounts[0]?.toLowerCase()
+        );
         setHasPledged(hasDonated);
       } catch (error) {
         setError(error);
@@ -284,7 +285,7 @@ const CampaignPage = () => {
     campaign.owner !== "0x0000000000000000000000000000000000000000";
 
   const lastValidated = milestones.find((item) => item.validated);
-
+  
   return (
     <>
       <div className="flex flex-col justify-between min-h-screen">
@@ -416,7 +417,8 @@ const CampaignPage = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-center justify-center gap-1 mt-8">
-                    {campaign.owner !== wallet.accounts[0] && (
+                    {campaign.owner?.toLowerCase() !==
+                      wallet.accounts[0]?.toLowerCase() && (
                       <div>
                         {campaign.status === 2 ? (
                           <button
@@ -447,9 +449,8 @@ const CampaignPage = () => {
                               </button>
                             )}
                             {hasPledged &&
-                              !(
-                                campaign.status === 0 || campaign.status === 4
-                              ) && (
+                              (campaign.status === 0 ||
+                                campaign.status === 4) && (
                                 <button
                                   className="text-[#3C4A79] px-3 py-2 rounded-lg bg-white text-sm border border-[#3C4A79]"
                                   onClick={handleUnpledge}
@@ -469,7 +470,8 @@ const CampaignPage = () => {
                       </div>
                     )}
 
-                    {campaign.owner === wallet.accounts[0] && (
+                    {campaign.owner?.toLowerCase() ===
+                      wallet.accounts[0]?.toLowerCase() && (
                       <div>
                         <button
                           className="text-[#3C4A79] px-3 py-2 rounded-lg bg-white text-sm border border-[#3C4A79]"

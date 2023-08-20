@@ -92,8 +92,8 @@ export const MetaMaskContextProvider = ({ children }) => {
 
       // const isFlaskDetected = clientVersion?.includes("flask");
 
-      // setHasProvider(Boolean(provider && isFlaskDetected));
       setHasProvider(Boolean(provider));
+      // setHasProvider(Boolean(provider && isFlaskDetected));
 
       if (provider) {
         // const snaps = await window.ethereum.request({
