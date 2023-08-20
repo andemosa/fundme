@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "flowbite-react";
 import { Spinner } from "flowbite-react";
-import { useNotification } from "web3uikit";
+// import { useNotification } from "web3uikit";
 import { ethers } from "ethers";
 
 import { useMetaMask } from "@/hooks/useMetaMask";
@@ -28,7 +28,7 @@ const MilestoneCard = ({
   setSelectedImage,
 }) => {
   const { signer, provider, wallet } = useMetaMask();
-  const dispatch = useNotification();
+  // const dispatch = useNotification();
   const [hasValidated, setHasValidated] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -52,13 +52,13 @@ const MilestoneCard = ({
   }, [milestoneHash, signer, wallet.accounts]);
 
   const handleNewNotification = (type, message) => {
-    dispatch({
-      type,
-      message,
-      title: "Transaction Notification",
-      position: "topR",
-      icon: "bell",
-    });
+    // dispatch({
+    //   type,
+    //   message,
+    //   title: "Transaction Notification",
+    //   position: "topR",
+    //   icon: "bell",
+    // });
   };
 
   const handleWithdraw = async (e) => {
