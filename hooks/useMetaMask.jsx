@@ -90,20 +90,21 @@ export const MetaMaskContextProvider = ({ children }) => {
         method: "web3_clientVersion",
       });
 
-      const isFlaskDetected = clientVersion?.includes("flask");
+      // const isFlaskDetected = clientVersion?.includes("flask");
 
-      setHasProvider(Boolean(provider && isFlaskDetected));
+      // setHasProvider(Boolean(provider && isFlaskDetected));
+      setHasProvider(Boolean(provider));
 
       if (provider) {
-        const snaps = await window.ethereum.request({
-          method: "wallet_getSnaps",
-        });
+        // const snaps = await window.ethereum.request({
+        //   method: "wallet_getSnaps",
+        // });
 
-        const installedSnap = Object.values(snaps).find(
-          (snap) => snap.id === defaultSnapOrigin
-        );
+        // const installedSnap = Object.values(snaps).find(
+        //   (snap) => snap.id === defaultSnapOrigin
+        // );
 
-        setSnap(installedSnap);
+        // setSnap(installedSnap);
         updateWalletAndAccounts();
         window.ethereum.on("accountsChanged", updateWallet);
         window.ethereum.on("chainChanged", updateWalletAndAccounts);
@@ -127,7 +128,7 @@ export const MetaMaskContextProvider = ({ children }) => {
       });
       clearError();
       updateWallet(accounts);
-      await connectSnap();
+      // await connectSnap();
     } catch (err) {
       setErrorMessage(err.message);
     }
